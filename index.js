@@ -3,28 +3,27 @@ const axiosInstance = axios.create({
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-  axiosInstance.get("/appointmentData").then((res) => {
-    showAppointment(res.data);
-  });
+  axiosInstance
+    .get("/appointmentData")
+    .then((res) => {
+      showAppointment(res.data);
+    })
+    .catch((err) => console.log(err));
 });
 
 function showAppointment(data) {
   const ul = document.getElementById("appointment");
   for (let i = 0; i < data.length; i++) {
-    const { name, email, phonenumber, date, time } = data[i];
-    // const deleteButton = document.createElement("button");
-    // deleteButton.className = "delete-btn";
-    // deleteButton.innerText = "delete";
-    // deleteButton.addEventListener("click", handleDelete);
-    // const editButton = document.createElement("button");
-    // editButton.className = "edit-btn";
-    // editButton.innerText = "edit";
-    // editButton.addEventListener("click", handleEdit);
+    const { _id, name, email, phonenumber, date, time } = data[i];
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-btn";
+    deleteButton.innerText = "delete";
+    deleteButton.addEventListener("click", handleDelete);
     const list = document.createElement("li");
+    list.id = _id;
     list.className = "user";
     list.innerText = `${name} - ${email} - ${phonenumber} - ${date} - ${time} `;
-    // list.appendChild(deleteButton);
-    // list.appendChild(editButton);
+    list.appendChild(deleteButton);
     ul.appendChild(list);
   }
 }
@@ -45,5 +44,17 @@ function handleSubmit(e) {
       time,
     })
     .then((res) => console.log(res))
+    .catch((err) => console.log(err));
+}
+function handleDelete(e) {
+  e.preventDefault();
+  const ul = document.getElementById("appointment");
+  const _id = e.target.parentNode.id;
+  ul.removeChild(e.target.parentNode);
+  axiosInstance
+    .delete(`/appointmentData/${_id}`)
+    .then((res) => {
+      console.log(res);
+    })
     .catch((err) => console.log(err));
 }
