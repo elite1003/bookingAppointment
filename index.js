@@ -1,6 +1,33 @@
 const axiosInstance = axios.create({
   baseURL: "https://crudcrud.com/api/5b20cb5aeea44c3e9db4b8cf0eee7d6b",
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  axiosInstance.get("/appointmentData").then((res) => {
+    showAppointment(res.data);
+  });
+});
+
+function showAppointment(data) {
+  const ul = document.getElementById("appointment");
+  for (let i = 0; i < data.length; i++) {
+    const { name, email, phonenumber, date, time } = data[i];
+    // const deleteButton = document.createElement("button");
+    // deleteButton.className = "delete-btn";
+    // deleteButton.innerText = "delete";
+    // deleteButton.addEventListener("click", handleDelete);
+    // const editButton = document.createElement("button");
+    // editButton.className = "edit-btn";
+    // editButton.innerText = "edit";
+    // editButton.addEventListener("click", handleEdit);
+    const list = document.createElement("li");
+    list.className = "user";
+    list.innerText = `${name} - ${email} - ${phonenumber} - ${date} - ${time} `;
+    // list.appendChild(deleteButton);
+    // list.appendChild(editButton);
+    ul.appendChild(list);
+  }
+}
 function handleSubmit(e) {
   e.preventDefault();
   const name = e.target.name.value;
