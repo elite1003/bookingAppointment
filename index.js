@@ -1,31 +1,50 @@
 const axiosInstance = axios.create({
-  baseURL: "https://crudcrud.com/api/5b20cb5aeea44c3e9db4b8cf0eee7d6b",
+  baseURL: "https://crudcrud.com/api/036854be3e5c41a5a658023b0f7ca55b",
 });
-
+let selectedId = null;
+const ul = document.getElementById("appointment");
 document.addEventListener("DOMContentLoaded", function () {
   axiosInstance
     .get("/appointmentData")
     .then((res) => {
-      showAppointment(res.data);
+      for (let i = 0; i < res.data.length; i++) showAppointment(res.data[i]);
     })
     .catch((err) => console.log(err));
 });
 
 function showAppointment(data) {
-  const ul = document.getElementById("appointment");
-  for (let i = 0; i < data.length; i++) {
-    const { _id, name, email, phonenumber, date, time } = data[i];
-    const deleteButton = document.createElement("button");
-    deleteButton.className = "delete-btn";
-    deleteButton.innerText = "delete";
-    deleteButton.addEventListener("click", handleDelete);
-    const list = document.createElement("li");
-    list.id = _id;
-    list.className = "user";
-    list.innerText = `${name} - ${email} - ${phonenumber} - ${date} - ${time} `;
-    list.appendChild(deleteButton);
-    ul.appendChild(list);
-  }
+  const { _id, name, email, phonenumber, date, time } = data;
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "delete-btn";
+  deleteButton.innerText = "delete";
+  deleteButton.addEventListener("click", handleDelete);
+  const editButton = document.createElement("button");
+  editButton.className = "edit-btn";
+  editButton.innerText = "edit";
+  editButton.addEventListener("click", handleEdit);
+  const list = document.createElement("li");
+  list.id = _id;
+  list.className = "user";
+  list.innerText = `${name} ${email} ${phonenumber} ${date} ${time} `;
+  list.appendChild(deleteButton);
+  list.appendChild(editButton);
+  ul.appendChild(list);
+}
+function handleFormUpdate(customerAppointmentData) {
+  const li = document.getElementById(selectedId);
+  ul.removeChild(li);
+  axiosInstance
+    .delete(`/appointmentData/${selectedId}`)
+    .then((res) => {
+      console.log("resource deleted successfully");
+    })
+    .catch((err) => console.log(err));
+  axiosInstance
+    .post("/appointmentData", customerAppointmentData)
+    .then((res) => showAppointment(res.data))
+    .catch((err) => console.log(err));
+
+  selectedId = null;
 }
 function handleSubmit(e) {
   e.preventDefault();
@@ -34,21 +53,24 @@ function handleSubmit(e) {
   const phonenumber = e.target.phonenumber.value;
   const date = e.target.date.value;
   const time = e.target.time.value;
-
-  axiosInstance
-    .post("/appointmentData", {
-      name,
-      email,
-      phonenumber,
-      date,
-      time,
-    })
-    .then((res) => console.log(res))
-    .catch((err) => console.log(err));
+  const customerAppointmentData = {
+    name,
+    email,
+    phonenumber,
+    date,
+    time,
+  };
+  if (selectedId) {
+    handleFormUpdate(customerAppointmentData);
+  } else {
+    axiosInstance
+      .post("/appointmentData", customerAppointmentData)
+      .then((res) => showAppointment(res.data))
+      .catch((err) => console.log(err));
+  }
 }
 function handleDelete(e) {
   e.preventDefault();
-  const ul = document.getElementById("appointment");
   const _id = e.target.parentNode.id;
   ul.removeChild(e.target.parentNode);
   axiosInstance
@@ -57,4 +79,16 @@ function handleDelete(e) {
       console.log(res);
     })
     .catch((err) => console.log(err));
+}
+
+function handleEdit(e) {
+  console.log("handleEdit");
+  const li = e.target.parentNode;
+  selectedId = li.id;
+  const appointmentData = li.innerText.split(" ");
+  document.getElementById("name").value = appointmentData[0];
+  document.getElementById("email").value = appointmentData[1];
+  document.getElementById("phonenumber").value = appointmentData[2];
+  document.getElementById("date").value = appointmentData[3];
+  document.getElementById("time").value = appointmentData[4];
 }
