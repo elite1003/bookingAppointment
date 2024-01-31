@@ -34,16 +34,12 @@ function handleFormUpdate(customerAppointmentData) {
   const li = document.getElementById(selectedId);
   ul.removeChild(li);
   axiosInstance
-    .delete(`/appointmentData/${selectedId}`)
+    .put(`/appointmentData/${selectedId}`, customerAppointmentData)
     .then((res) => {
-      console.log("resource deleted successfully");
+      console.log("resource updated successfully");
+      showAppointment(customerAppointmentData);
     })
     .catch((err) => console.log(err));
-  axiosInstance
-    .post("/appointmentData", customerAppointmentData)
-    .then((res) => showAppointment(res.data))
-    .catch((err) => console.log(err));
-
   selectedId = null;
 }
 function handleSubmit(e) {
