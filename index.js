@@ -1,8 +1,9 @@
 const axiosInstance = axios.create({
-  baseURL: "https://crudcrud.com/api/036854be3e5c41a5a658023b0f7ca55b",
+  baseURL: "https://crudcrud.com/api/c87d9a76057d4956965c813dd3b12f91",
 });
 let selectedId = null;
 const ul = document.getElementById("appointment");
+const form = document.getElementById("patientdetails");
 document.addEventListener("DOMContentLoaded", function () {
   axiosInstance
     .get("/appointmentData")
@@ -25,19 +26,19 @@ function showAppointment(data) {
   const list = document.createElement("li");
   list.id = _id;
   list.className = "user";
-  list.innerText = `${name} ${email} ${phonenumber} ${date} ${time} `;
+  list.innerText = `${name} \u200B ${email} \u200B${phonenumber}\u200B ${date}\u200B ${time} `;
   list.appendChild(deleteButton);
   list.appendChild(editButton);
   ul.appendChild(list);
 }
 function handleFormUpdate(customerAppointmentData) {
+  const { name, email, phonenumber, date, time } = customerAppointmentData;
   const li = document.getElementById(selectedId);
-  ul.removeChild(li);
+  li.firstChild.data = `${name} \u200B ${email} \u200B${phonenumber}\u200B ${date}\u200B ${time} `;
   axiosInstance
     .put(`/appointmentData/${selectedId}`, customerAppointmentData)
     .then((res) => {
       console.log("resource updated successfully");
-      showAppointment(customerAppointmentData);
     })
     .catch((err) => console.log(err));
   selectedId = null;
@@ -64,6 +65,7 @@ function handleSubmit(e) {
       .then((res) => showAppointment(res.data))
       .catch((err) => console.log(err));
   }
+  form.reset();
 }
 function handleDelete(e) {
   e.preventDefault();
@@ -72,19 +74,22 @@ function handleDelete(e) {
   axiosInstance
     .delete(`/appointmentData/${_id}`)
     .then((res) => {
-      console.log(res);
+      console.log("deleted successfully");
     })
     .catch((err) => console.log(err));
 }
-
 function handleEdit(e) {
   console.log("handleEdit");
   const li = e.target.parentNode;
   selectedId = li.id;
-  const appointmentData = li.innerText.split(" ");
+  const appointmentData = li.innerText.split("\u200B");
   document.getElementById("name").value = appointmentData[0];
   document.getElementById("email").value = appointmentData[1];
   document.getElementById("phonenumber").value = appointmentData[2];
   document.getElementById("date").value = appointmentData[3];
   document.getElementById("time").value = appointmentData[4];
+}
+function handleReset() {
+  console.log("handleReset");
+  selectedId = null;
 }
